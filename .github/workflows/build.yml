@@ -1,0 +1,62 @@
+name: Build Solution
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        platform: [x64, x86, ARM64]
+        configuration: [Release]
+      fail-fast: false
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Map platform
+      id: platform-mapping
+      run: |
+        $platform = '${{ matrix.platform }}'
+        if ($platform -eq 'x86') {
+          $platform = 'Win32'
+          echo "mapped-platform=$platform" >> $env:GITHUB_OUTPUT
+        } else {
+          echo "mapped-platform=$platform" >> $env:GITHUB_OUTPUT
+        }
+      shell: pwsh
+
+    - name: Build Solution
+      run: |
+        msbuild.exe defendnot.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} -t:rebuild /m /verbosity:normal
+
+    - name: Copy artifacts
+      run: |
+        $platform = '${{ matrix.platform }}'
+        $mappedPlatform = '${{ steps.platform-mapping.outputs.mapped-platform }}'
+        $config = '${{ matrix.configuration }}'
+
+        New-Item -Path "artifacts\$platform" -ItemType Directory -Force
+
+        Get-ChildItem -Path "out\$mappedPlatform" | Select-Object Name
+
+        Copy-Item -Path ".\out\$mappedPlatform\defendnot.dll" -Destination ".\artifacts\$platform\" -Verbose
+        Copy-Item -Path ".\out\$mappedPlatform\defendnot.pdb" -Destination ".\artifacts\$platform\" -Verbose
+        Copy-Item -Path ".\out\$mappedPlatform\defendnot-loader.exe" -Destination ".\artifacts\$platform\" -Verbose
+        Copy-Item -Path ".\out\$mappedPlatform\defendnot-loader.pdb" -Destination ".\artifacts\$platform\" -Verbose
+      shell: pwsh
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: binaries-${{ matrix.platform }}
+        path: artifacts/${{ matrix.platform }}
+        retention-days: 7
