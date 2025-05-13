@@ -1,6 +1,8 @@
 #include "core/core.hpp"
 
 #include "shared/defer.hpp"
+#include "shared/native.hpp"
+
 #include <print>
 #include <stdexcept>
 
@@ -18,6 +20,9 @@ namespace loader {
             .nLength = sizeof(sa),
             .bInheritHandle = TRUE,
         };
+
+        /// \xref: https://github.com/es3n1n/defendnot/issues/7#issuecomment-2874903650
+        native::get_peb()->read_image_file_exec_options = 0;
 
         std::println("** booting {}", proc_name);
         if (!CreateProcessA(nullptr, const_cast<char*>(proc_name.data()), &sa, &sa, FALSE, CREATE_SUSPENDED, nullptr, nullptr, &si, &pi)) {
