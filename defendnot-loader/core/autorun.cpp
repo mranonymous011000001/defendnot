@@ -148,16 +148,26 @@ namespace loader {
                 return false;
             }
 
+            /// Elevated, when any user logs in
+            principal->put_GroupId(bstr_t("BUILTIN\\Users"));
+            principal->put_LogonType(TASK_LOGON_INTERACTIVE_TOKEN);
             principal->put_RunLevel(TASK_RUNLEVEL_HIGHEST);
-            reg_info->put_Author(_bstr_t(names::kRepoUrl.data()));
+
+            /// Info
+            reg_info->put_Author(bstr_t(names::kRepoUrl.data()));
+
+            /// Start even if we're on batteries
             settings->put_DisallowStartIfOnBatteries(VARIANT_FALSE);
             settings->put_StopIfGoingOnBatteries(VARIANT_FALSE);
-            exec_action->put_Path(_bstr_t(bin_path.string().c_str()));
-            exec_action->put_Arguments(_bstr_t("--from-autorun"));
 
+            /// Binary
+            exec_action->put_Path(bstr_t(bin_path.string().c_str()));
+            exec_action->put_Arguments(bstr_t("--from-autorun"));
+
+            /// Register the task and we are done
             ComPtr<IRegisteredTask> registered_task;
-            hr = folder->RegisterTaskDefinition(_bstr_t(kTaskName.data()), task.get(), TASK_CREATE_OR_UPDATE, VARIANT{}, VARIANT{},
-                                                TASK_LOGON_INTERACTIVE_TOKEN, _variant_t(L""), registered_task.ref_to_ptr());
+            hr = folder->RegisterTaskDefinition(bstr_t(kTaskName.data()), task.get(), TASK_CREATE_OR_UPDATE, VARIANT{}, VARIANT{},
+                                                TASK_LOGON_INTERACTIVE_TOKEN, variant_t(L""), registered_task.ref_to_ptr());
             return SUCCEEDED(hr);
         });
     }
