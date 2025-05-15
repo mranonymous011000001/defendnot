@@ -7,4 +7,6 @@ namespace names {
 
     constexpr std::string_view kVictimProcess = "Taskmgr.exe";
     constexpr std::string_view kDllName = "defendnot.dll";
+
+    constexpr std::string_view kVersion = "1.0.0";
 } // namespace names

@@ -57,7 +57,7 @@ namespace {
 
     void process_autorun(const loader::Config& config) {
         if (shared::ctx.state == shared::State::ON) {
-            std::println("** added to autorun: {}", loader::add_to_autorun());
+            std::println("** added to autorun: {}", loader::add_to_autorun(config.autorun_type));
         } else {
             std::println("** removed from autorun: {}", loader::remove_from_autorun());
         }
@@ -75,19 +75,41 @@ namespace {
 } // namespace
 
 int main(int argc, char* argv[]) try {
-    argparse::ArgumentParser program(std::format("{}-loader", names::kProjectName), "1.0.0");
+    argparse::ArgumentParser program(std::format("{}-loader", names::kProjectName), names::kVersion.data(), argparse::default_arguments::none);
 
+    const auto fatal_print = [](const std::string_view str) -> void {
+        shared::alloc_console();
+        std::cerr << str << std::endl;
+        system("pause");
+        std::exit(EXIT_FAILURE);
+    };
+
+    /// We are registering these ourselves because we have to alloc console first
+    program.add_argument("-h", "--help")
+        .help("prints help message and exits")
+        .default_value(false)
+        .implicit_value(true)
+        .action([&fatal_print, &program](const auto& /*unused*/) -> void { fatal_print(program.help().str()); });
+    program.add_argument("--version")
+        .help("shows version and exits")
+        .default_value(false)
+        .implicit_value(true)
+        .action([&fatal_print](const auto& /*unused*/) -> void { fatal_print(names::kVersion); });
+
+    /// defendnot-loader parameters:
     program.add_argument("-n", "--name").help("av display name").default_value(std::string(names::kRepoUrl)).nargs(1);
     program.add_argument("-d", "--disable").help(std::format("disable {}", names::kProjectName)).default_value(false).implicit_value(true);
     program.add_argument("-v", "--verbose").help("verbose logging").default_value(false).implicit_value(true);
+    program.add_argument("--autorun-as-user").help("create autorun task as currently logged in user").default_value(false).implicit_value(true);
     program.add_argument("--from-autorun").hidden().default_value(false).implicit_value(true);
 
     try {
         program.parse_args(argc, argv);
-    } catch (...) {
-        shared::alloc_console();
-        std::cerr << program;
-        system("pause");
+    } catch (std::exception& e) {
+        std::stringstream ss;
+        ss << e.what() << '\n';
+        ss << program.help().str();
+        fatal_print(ss.str());
         return EXIT_FAILURE;
     }
 
@@ -96,6 +118,9 @@ int main(int argc, char* argv[]) try {
         .disable = program.get<bool>("-d"),
         .verbose = program.get<bool>("-v"),
         .from_autorun = program.get<bool>("--from-autorun"),
+        .autorun_type = program.get<bool>("--autorun-as-user") ? /// As system on boot is the default value
+                            loader::AutorunType::AS_CURRENT_USER_ON_LOGIN :
+                            loader::AutorunType::AS_SYSTEM_ON_BOOT,
     };
 
     setup_window(config);
