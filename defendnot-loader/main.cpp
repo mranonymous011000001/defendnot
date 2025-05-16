@@ -56,7 +56,7 @@ namespace {
     }
 
     void process_autorun(const loader::Config& config) {
-        if (shared::ctx.state == shared::State::ON) {
+        if (shared::ctx.state == shared::State::ON && config.enable_autorun) {
             std::println("** added to autorun: {}", loader::add_to_autorun(config.autorun_type));
         } else {
             std::println("** removed from autorun: {}", loader::remove_from_autorun());
@@ -94,13 +94,14 @@ int main(int argc, char* argv[]) try {
         .help("shows version and exits")
         .default_value(false)
         .implicit_value(true)
-        .action([&fatal_print](const auto& /*unused*/) -> void { fatal_print(names::kVersion); });
+        .action([&fatal_print](const auto& /*unused*/) -> void { fatal_print(std::format("{}-loader v{}", names::kProjectName, names::kVersion)); });
 
     /// defendnot-loader parameters:
     program.add_argument("-n", "--name").help("av display name").default_value(std::string(names::kRepoUrl)).nargs(1);
     program.add_argument("-d", "--disable").help(std::format("disable {}", names::kProjectName)).default_value(false).implicit_value(true);
     program.add_argument("-v", "--verbose").help("verbose logging").default_value(false).implicit_value(true);
     program.add_argument("--autorun-as-user").help("create autorun task as currently logged in user").default_value(false).implicit_value(true);
+    program.add_argument("--disable-autorun").help("disable autorun task creation").default_value(false).implicit_value(true);
     program.add_argument("--from-autorun").hidden().default_value(false).implicit_value(true);
 
     try {
@@ -121,6 +122,7 @@ int main(int argc, char* argv[]) try {
         .autorun_type = program.get<bool>("--autorun-as-user") ? /// As system on boot is the default value
                             loader::AutorunType::AS_CURRENT_USER_ON_LOGIN :
                             loader::AutorunType::AS_SYSTEM_ON_BOOT,
+        .enable_autorun = !program.get<bool>("--disable-autorun"),
     };
 
     setup_window(config);

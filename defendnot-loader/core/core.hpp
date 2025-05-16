@@ -17,6 +17,7 @@ namespace loader {
         bool verbose;
         bool from_autorun;
         AutorunType autorun_type;
+        bool enable_autorun;
     };
 
     [[nodiscard]] HANDLE inject(std::string_view dll_path, std::string_view proc_name);
