@@ -10,7 +10,7 @@
 
 namespace defendnot {
     namespace detail {
-        inline GUID RCLSID = {0x0F2102C37, 0x90C3, 0x450C, {0x0B3, 0x0F6, 0x92, 0x0BE, 0x16, 0x93, 0x0BD, 0x0F2}};
+        inline GUID CLSID_IWscAVStatus = {0x0F2102C37, 0x90C3, 0x450C, {0x0B3, 0x0F6, 0x92, 0x0BE, 0x16, 0x93, 0x0BD, 0x0F2}};
         inline GUID IID_IWscAVStatus = {0x3901A765, 0x0AB91, 0x4BA9, {0xA5, 0x53, 0x5B, 0x85, 0x38, 0xDE, 0xB8, 0x40}};
     } // namespace detail
 
@@ -19,6 +19,13 @@ namespace defendnot {
         OFF = 1,
         SNOOZED = 2,
         EXPIRED = 3
+    };
+
+    enum class WSCSecurityProductSubStatus : std::uint32_t {
+        NOT_SET = 0,
+        NO_ACTION = 1,
+        ACTION_RECOMMENDED = 2,
+        ACTION_NEEDED = 3
     };
 
     inline HRESULT com_checked(HRESULT result, const std::source_location loc = std::source_location::current()) {
@@ -53,20 +60,39 @@ namespace defendnot {
     }
 
     class IWscAVStatus {
-    private:
-        /// Incomplete stubs to just increase the vfunc id
+    public:
         virtual HRESULT QueryInterface() = 0;
-        virtual HRESULT AddRef() = 0;
-        virtual HRESULT Release() = 0;
+        virtual std::uint32_t AddRef() = 0;
+        virtual std::uint32_t Release() = 0;
+        virtual HRESULT Register(BSTR path_to_signed_product_exe, BSTR display_name, std::uint32_t, std::uint32_t) = 0;
+        virtual HRESULT Unregister() = 0;
+        virtual HRESULT UpdateStatus(WSCSecurityProductState state, std::uint32_t) = 0;
+        virtual HRESULT InitiateOfflineCleaning(std::uint16_t*, std::uint16_t*) = 0;
+        virtual HRESULT NotifyUserForNearExpiration(std::uint32_t) = 0;
+        virtual HRESULT MakeDefaultProductRequest() = 0;
+        virtual HRESULT IsDefaultProductEnforced(std::uint32_t* result) = 0;
+        virtual HRESULT UpdateScanSubstatus(WSCSecurityProductSubStatus status) = 0;
+        virtual HRESULT UpdateSettingsSubstatus(WSCSecurityProductSubStatus status) = 0;
+        virtual HRESULT UpdateProtectionUpdateSubstatus(WSCSecurityProductSubStatus status) = 0;
+        virtual HRESULT RegisterAV(std::uint16_t*, std::uint16_t*, std::uint32_t, std::uint32_t) = 0;
+        virtual HRESULT UnregisterAV() = 0;
+        virtual HRESULT UpdateStatusAV(WSCSecurityProductState state, std::uint32_t) = 0;
+        virtual HRESULT InitiateOfflineCleaningAV(std::uint16_t*, std::uint16_t*) = 0;
+        virtual HRESULT NotifyUserForNearExpirationAV(std::uint32_t) = 0;
+        virtual HRESULT RegisterFW(std::uint16_t*, std::uint16_t*, std::uint32_t, std::uint32_t) = 0;
+        virtual HRESULT UnregisterFW() = 0;
+        virtual HRESULT UpdateStatusFW(WSCSecurityProductState state) = 0;
+        virtual HRESULT RegisterAS(std::uint16_t*, std::uint16_t*, std::uint32_t, std::uint32_t) = 0;
+        virtual HRESULT UnregisterAS() = 0;
+        virtual HRESULT UpdateStatusAS(WSCSecurityProductState state, std::uint32_t) = 0;
+
+    private:
+        virtual void dtor() = 0;
 
     public:
-        virtual HRESULT Register(BSTR path_to_signed_product_exe, BSTR display_name) = 0;
-        virtual HRESULT Unregister() = 0;
-        virtual HRESULT UpdateStatus(WSCSecurityProductState state, std::uint32_t idk) = 0;
-
         static IWscAVStatus* get() {
             IWscAVStatus* result = nullptr;
-            com_checked(CoCreateInstance(detail::RCLSID, 0, 1, detail::IID_IWscAVStatus, reinterpret_cast<LPVOID*>(&result)));
+            com_checked(CoCreateInstance(detail::CLSID_IWscAVStatus, 0, 1, detail::IID_IWscAVStatus, reinterpret_cast<LPVOID*>(&result)));
             return result;
         }
     };

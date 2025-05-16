@@ -16,7 +16,7 @@ namespace defendnot {
         auto inst = IWscAVStatus::get();
 
         /// This can fail if we dont have any avs registered so no com_checked
-        logln("unregister: {:#x}", com_retry_while_pending([&inst]() -> HRESULT { return inst->Unregister(); }));
+        logln("unregister: {:#x}", com_retry_while_pending([&inst]() -> HRESULT { return inst->Unregister(); }) & 0xFFFFFFFF);
         if (shared::ctx.state == shared::State::OFF) {
             return;
         }
@@ -34,7 +34,7 @@ namespace defendnot {
         };
 
         /// Register and activate our AV
-        logln("register: {:#x}", com_checked(inst->Register(name, name)));
+        logln("register: {:#x}", com_checked(inst->Register(name, name, 0, 0)));
         logln("update: {:#x}", com_checked(inst->UpdateStatus(WSCSecurityProductState::ON, 3)));
     }
 } // namespace defendnot
