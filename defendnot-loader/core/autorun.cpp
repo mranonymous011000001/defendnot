@@ -90,10 +90,20 @@ namespace loader {
         }
     } // namespace
 
-    [[nodiscard]] bool add_to_autorun() {
+    [[nodiscard]] bool add_to_autorun(AutorunType type) {
         const auto bin_path = shared::get_this_module_path();
 
-        return with_service([bin_path](ITaskService* service, ITaskFolder* folder) -> bool {
+        return with_service([bin_path, type](ITaskService* service, ITaskFolder* folder) -> bool {
+            /// Deduce the autorun config based on type
+            const auto task_trigger = type == AutorunType::AS_SYSTEM_ON_BOOT ? TASK_TRIGGER_BOOT : TASK_TRIGGER_LOGON;
+            const auto logon_type = type == AutorunType::AS_SYSTEM_ON_BOOT ? TASK_LOGON_SERVICE_ACCOUNT : TASK_LOGON_INTERACTIVE_TOKEN;
+
+            BSTR user_id = nullptr;
+            auto bstr_sys = bstr_t(L"SYSTEM");
+            if (type == AutorunType::AS_SYSTEM_ON_BOOT) {
+                user_id = bstr_sys;
+            }
+
             ComPtr<ITaskDefinition> task;
             auto hr = service->NewTask(0, task.ref_to_ptr());
             if (FAILED(hr)) {
@@ -119,7 +129,7 @@ namespace loader {
             }
 
             ComPtr<ITrigger> trigger;
-            hr = trigger_collection->Create(TASK_TRIGGER_LOGON, trigger.ref_to_ptr());
+            hr = trigger_collection->Create(task_trigger, trigger.ref_to_ptr());
             if (FAILED(hr)) {
                 return false;
             }
@@ -148,16 +158,26 @@ namespace loader {
                 return false;
             }
 
+            /// Elevated, when system boots
+            principal->put_UserId(user_id);
+            principal->put_LogonType(logon_type);
             principal->put_RunLevel(TASK_RUNLEVEL_HIGHEST);
-            reg_info->put_Author(_bstr_t(names::kRepoUrl.data()));
+
+            /// Info
+            reg_info->put_Author(bstr_t(names::kRepoUrl.data()));
+
+            /// Start even if we're on batteries
             settings->put_DisallowStartIfOnBatteries(VARIANT_FALSE);
             settings->put_StopIfGoingOnBatteries(VARIANT_FALSE);
-            exec_action->put_Path(_bstr_t(bin_path.string().c_str()));
-            exec_action->put_Arguments(_bstr_t("--from-autorun"));
 
+            /// Binary
+            exec_action->put_Path(bstr_t(bin_path.string().c_str()));
+            exec_action->put_Arguments(bstr_t("--from-autorun"));
+
+            /// Register the task and we are done
             ComPtr<IRegisteredTask> registered_task;
-            hr = folder->RegisterTaskDefinition(_bstr_t(kTaskName.data()), task.get(), TASK_CREATE_OR_UPDATE, VARIANT{}, VARIANT{},
-                                                TASK_LOGON_INTERACTIVE_TOKEN, _variant_t(L""), registered_task.ref_to_ptr());
+            hr = folder->RegisterTaskDefinition(bstr_t(kTaskName.data()), task.get(), TASK_CREATE_OR_UPDATE, VARIANT{}, VARIANT{}, TASK_LOGON_NONE,
+                                                variant_t(L""), registered_task.ref_to_ptr());
             return SUCCEEDED(hr);
         });
     }
