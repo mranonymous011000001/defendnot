@@ -1,8 +1,15 @@
-name: Build Solution
+name: Build/Release
 
 on:
   push:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag for the release'
+        required: true
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -57,6 +64,43 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: binaries-${{ matrix.platform }}
+        name: ${{ matrix.platform }}
         path: artifacts/${{ matrix.platform }}
         retention-days: 7
+
+  create-release:
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.tag != ''
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: release-artifacts
+    
+    - name: Zip Artifacts
+      run: |
+        mkdir -p zipped-artifacts
+        cd release-artifacts
+        for platform in */; do
+          platform_name=${platform%/}
+          echo "Zipping $platform_name"
+          (cd "$platform_name" && zip -r "../../zipped-artifacts/$platform_name.zip" .)
+        done
+    
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.event.inputs.tag }}
+        name: ${{ github.event.inputs.tag }}
+        draft: false
+        prerelease: false
+        files: zipped-artifacts/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
