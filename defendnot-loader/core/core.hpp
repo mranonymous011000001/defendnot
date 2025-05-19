@@ -14,6 +14,7 @@ namespace loader {
     public:
         std::string name;
         bool disable;
+        bool alloc_console;
         bool verbose;
         bool from_autorun;
         AutorunType autorun_type;

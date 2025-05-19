@@ -11,7 +11,7 @@
 
 namespace {
     void setup_window(const loader::Config& config) {
-        if (!config.from_autorun || config.verbose) {
+        if ((!config.from_autorun || config.verbose) && config.alloc_console) {
             shared::alloc_console();
         }
     }
@@ -68,7 +68,7 @@ namespace {
         std::println("thanks for using {}", names::kProjectName);
         std::println("please don't forget to leave a star at {}", names::kRepoUrl);
 
-        if (!config.from_autorun) {
+        if (!config.from_autorun && config.alloc_console) {
             system("pause");
         }
     }
@@ -100,6 +100,7 @@ int main(int argc, char* argv[]) try {
     program.add_argument("-n", "--name").help("av display name").default_value(std::string(names::kRepoUrl)).nargs(1);
     program.add_argument("-d", "--disable").help(std::format("disable {}", names::kProjectName)).default_value(false).implicit_value(true);
     program.add_argument("-v", "--verbose").help("verbose logging").default_value(false).implicit_value(true);
+    program.add_argument("--silent").help("do not allocate console").default_value(false).implicit_value(true);
     program.add_argument("--autorun-as-user").help("create autorun task as currently logged in user").default_value(false).implicit_value(true);
     program.add_argument("--disable-autorun").help("disable autorun task creation").default_value(false).implicit_value(true);
     program.add_argument("--from-autorun").hidden().default_value(false).implicit_value(true);
@@ -117,6 +118,7 @@ int main(int argc, char* argv[]) try {
     auto config = loader::Config{
         .name = program.get<std::string>("-n"),
         .disable = program.get<bool>("-d"),
+        .alloc_console = !program.get<bool>("--silent"),
         .verbose = program.get<bool>("-v"),
         .from_autorun = program.get<bool>("--from-autorun"),
         .autorun_type = program.get<bool>("--autorun-as-user") ? /// As system on boot is the default value
@@ -124,6 +126,10 @@ int main(int argc, char* argv[]) try {
                             loader::AutorunType::AS_SYSTEM_ON_BOOT,
         .enable_autorun = !program.get<bool>("--disable-autorun"),
     };
+
+    if (!config.alloc_console && config.verbose) {
+        fatal_print("--silent flag can not be used in combination with --verbose");
+    }
 
     setup_window(config);
     setup_context(config);
