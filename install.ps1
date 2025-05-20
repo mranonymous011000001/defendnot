@@ -1,5 +1,6 @@
+#Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
-$InstallPath = "$env:ProgramData\defendnot"
+$InstallPath = "$env:ProgramFiles\defendnot"
 
 switch -Wildcard ($env:PROCESSOR_ARCHITECTURE) {
     "AMD64"   { $arch = "x64" }
@@ -46,7 +47,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $InstallPath)
 Remove-Item $zipPath
 
-Write-Host "`nInstalled to $InstallPath"
+Write-Host "Installed to $InstallPath"
 Write-Host "Starting..."
 Write-Host "Args: $args"
 & "$InstallPath\defendnot-loader.exe" @args
