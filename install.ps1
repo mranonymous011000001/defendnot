@@ -46,7 +46,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 [System.IO.Compression.ZipFile]::ExtractToDirectory($zipPath, $InstallPath)
 Remove-Item $zipPath
 
-Write-Host "`nDefendnot installed to $InstallPath"
+Write-Host "`nInstalled to $InstallPath"
 Write-Host "Starting..."
 Write-Host "Args: $args"
 & "$InstallPath\defendnot-loader.exe" @args
