@@ -14,13 +14,13 @@ Open the powershell as administrator and execute any of these:
 
 ```powershell
 # Example 1: Basic installation
-irm https://es3n1n.io/defendnot.ps1 | iex
+irm https://dnot.sh/ | iex
 
 # Example 2: With custom AV name
-& ([ScriptBlock]::Create((irm https://es3n1n.io/defendnot.ps1))) --name "Custom AV name"
+& ([ScriptBlock]::Create((irm https://dnot.sh/))) --name "Custom AV name"
 
 # Example 3: Without allocating console
-& ([ScriptBlock]::Create((irm https://es3n1n.io/defendnot.ps1))) --silent
+& ([ScriptBlock]::Create((irm https://dnot.sh/))) --silent
 ```
 
 > [!NOTE]
