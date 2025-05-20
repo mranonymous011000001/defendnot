@@ -34,10 +34,6 @@ $zipPath = Join-Path $env:TEMP "defendnot-$arch.zip"
 Write-Host "Downloading $($zipAsset.name)..."
 Invoke-WebRequest -Uri $zipUrl -OutFile $zipPath
 
-If (!(Test-Path $InstallPath)) {
-    New-Item -Type Directory -Path $InstallPath -Force | Out-Null
-}
-
 if (Test-Path $InstallPath) {
     Write-Host "Removing previous installation..."
     Remove-Item $InstallPath -Force -Recurse -ErrorAction SilentlyContinue
