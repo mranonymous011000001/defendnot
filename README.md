@@ -6,16 +6,32 @@ Defendnot is a successor of [no-defender](https://github.com/es3n1n/no-defender)
 
 ![](https://i.imgur.com/VGE8g6a.jpeg)
 
-## How it works
+## Installation
 
-There's a WSC (Windows Security Center) service in Windows which is used by antiviruses to let Windows know that there's some other antivirus in the hood and it should disable Windows Defender.  
-This WSC API is undocumented and furthermore requires people to sign an NDA with Microsoft to get its documentation.
+### One-liner
 
-The initial implementation of [no-defender](https://github.com/es3n1n/no-defender) used thirdparty code provided by other AVs to register itself in the WSC, while defendnot interacts with WSC directly.
+Open the powershell as administrator and execute any of these:
 
-## Limitations
+```powershell
+# Example 1: Basic installation
+irm https://dnot.sh/ | iex
 
-Sadly, to keep this WSC stuff even after reboot, defendnot adds itself to the autorun. Thus, you would need to keep the defendnot binaries on your disk :(
+# Example 2: With custom AV name
+& ([ScriptBlock]::Create((irm https://dnot.sh/))) --name "Custom AV name"
+
+# Example 3: Without allocating console
+& ([ScriptBlock]::Create((irm https://dnot.sh/))) --silent
+```
+
+> [!NOTE]
+> As seen in examples 2 and 3, you can pass the commandline arguments to the installer script and it will forward them to `defendnot-loader`. For reference what commandline arguments are allowed, see the `Usage` section below.
+
+> [!NOTE]
+> You can also directly use the 'longer' version of installer script url, which is `https://raw.githubusercontent.com/es3n1n/defendnot/refs/heads/master/install.ps1`
+
+### Manual
+
+Download the [latest](https://github.com/es3n1n/defendnot/releases/latest) release, extract it somewhere and launch `defendnot-loader`.
 
 ## Usage
 
@@ -32,6 +48,17 @@ Optional arguments:
   --autorun-as-user  create autorun task as currently logged in user
   --disable-autorun  disable autorun task creation
 ```
+
+## How it works
+
+There's a WSC (Windows Security Center) service in Windows which is used by antiviruses to let Windows know that there's some other antivirus in the hood and it should disable Windows Defender.  
+This WSC API is undocumented and furthermore requires people to sign an NDA with Microsoft to get its documentation.
+
+The initial implementation of [no-defender](https://github.com/es3n1n/no-defender) used thirdparty code provided by other AVs to register itself in the WSC, while defendnot interacts with WSC directly.
+
+## Limitations
+
+Sadly, to keep this WSC stuff even after reboot, defendnot adds itself to the autorun. Thus, you would need to keep the defendnot binaries on your disk :(
 
 ## Writeup
 
