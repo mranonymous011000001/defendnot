@@ -1,5 +1,10 @@
-#Requires -RunAsAdministrator
 $ErrorActionPreference = "Stop"
+
+$principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+if (-not ($principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator))) {
+    Write-Error "This script requires administrator privileges. Please run as Administrator."
+    exit 1
+}
 $InstallPath = "$env:ProgramFiles\defendnot"
 
 switch -Wildcard ($env:PROCESSOR_ARCHITECTURE) {
