@@ -17,10 +17,10 @@ Open the powershell as administrator and execute any of these:
 irm https://es3n1n.io/defendnot.ps1 | iex
 
 # Example 2: With custom AV name
-& ([ScriptBlock]::Create((Invoke-RestMethod https://es3n1n.io/defendnot.ps1))) --name "Custom AV name"
+& ([ScriptBlock]::Create((irm https://es3n1n.io/defendnot.ps1))) --name "Custom AV name"
 
 # Example 3: Without allocating console
-& ([ScriptBlock]::Create((Invoke-RestMethod https://es3n1n.io/defendnot.ps1))) --silent
+& ([ScriptBlock]::Create((irm https://es3n1n.io/defendnot.ps1))) --silent
 ```
 
 > [!NOTE]
