@@ -24,7 +24,7 @@ irm https://es3n1n.io/defendnot.ps1 | iex
 ```
 
 > [!NOTE]
-> You can pass arguments to iex and installer script will forward your arguments to `defendnot-loader` as seen in examples 2 and 3. For reference what commandline arguments are allowed, see the `Usage` section below.
+> As seen in examples 2 and 3 you can pass the commandline arguments to the installer script and it will forward them to `defendnot-loader`. For reference what commandline arguments are allowed, see the `Usage` section below.
 
 > [!NOTE]
 > You can also directly use the 'longer' version of installer script url, which is `https://raw.githubusercontent.com/es3n1n/defendnot/refs/heads/master/install.ps1`
