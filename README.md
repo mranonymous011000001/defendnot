@@ -4,7 +4,7 @@ An even funnier way to disable windows defender.
 
 Defendnot is a successor of [no-defender](https://github.com/es3n1n/no-defender).
 
-![](https://i.imgur.com/VGE8g6a.jpeg)
+![](https://i.imgur.com/epX8wkd.jpeg)
 
 > [!WARNING]
 > **Permitted Use Notice**: 
