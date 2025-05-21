@@ -6,6 +6,15 @@ Defendnot is a successor of [no-defender](https://github.com/es3n1n/no-defender)
 
 ![](https://i.imgur.com/VGE8g6a.jpeg)
 
+> [!WARNING]
+> **Permitted Use Notice**: 
+> 
+> Using this tool to facilitate malware distribution, cybercrime, unauthorized access, evading detection, or any illegal activity is strictly prohibited.
+> 
+> Users assume all legal responsibility for how they use this tool and any consequences thereof. You must comply with all applicable local, state, federal, and international laws when using this tool.
+> 
+> By downloading, installing, or using this tool, you acknowledge that you have read, understood, and agree to these terms.
+
 ## Installation
 
 ### One-liner
@@ -59,6 +68,13 @@ The initial implementation of [no-defender](https://github.com/es3n1n/no-defende
 ## Limitations
 
 Sadly, to keep this WSC stuff even after reboot, defendnot adds itself to the autorun. Thus, you would need to keep the defendnot binaries on your disk :(
+
+## Legitimate Use Cases
+
+- Reducing resource consumption in development environments
+- Testing system performance under different security configurations
+- Educational research on Windows security mechanisms
+- Home lab experimentation and learning
 
 ## Writeup
 
