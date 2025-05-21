@@ -76,6 +76,9 @@ Sadly, to keep this WSC stuff even after reboot, defendnot adds itself to the au
 - Educational research on Windows security mechanisms
 - Home lab experimentation and learning
 
+> [!WARNING]
+> If your intended usage falls outside these legitimate use cases, support in issues/DMs might be denied without any further explanations.
+
 ## Writeup
 
 [How I ruined my vacation by reverse engineering WSC](https://blog.es3n1n.eu/posts/how-i-ruined-my-vacation/)
